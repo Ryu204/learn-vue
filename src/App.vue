@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import NavBar from './components/NavBar.vue'
 import WalletDetail from './components/WalletDetail.vue'
+import VestingTimeline from './components/VestingTimeline.vue'
 </script>
 
 <template>
   <header>
-    <NavBar id="nav-bar"></NavBar>
-    <h1>Hello, world</h1>
+    <NavBar></NavBar>
   </header>
   <main>
     <WalletDetail></WalletDetail>
+    <VestingTimeline></VestingTimeline>
   </main>
 </template>
 
 <style scoped>
-#nav-bar {
-}
 </style>

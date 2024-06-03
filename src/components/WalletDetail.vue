@@ -30,15 +30,34 @@ const unit = 'LION'
 
 <template>
     <div class="wrapper">
-        <p>Token address: {{ info.tokenAddress }}</p>
-        <p>Balance: {{ info.balance }} {{ unit }}</p>
-        <p>Token vesting: {{ info.tokenVesting }} {{ unit }}</p>
-        <p>Claimed: {{ info.claimed }} {{ unit }}</p>
+        <div>
+            <p>Token address: {{ info.tokenAddress }}</p>
+            <p>Balance: {{ info.balance }} {{ unit }}</p>
+            <p>Token vesting: {{ info.tokenVesting }} {{ unit }}</p>
+            <p>Claimed: {{ info.claimed }} {{ unit }}</p>
+        </div>
+        <button id="add-to-metamask">
+            Add {{ unit }} to Metamask
+        </button>
     </div>
 </template>
 
 <style scoped>
 .wrapper {
-    background-color: blueviolet;
+    padding: 20px;
+    background-color: black;
+    color: white;
+    border-radius: 3px;
+    display: flex;
+    place-content: end space-between;
+}
+
+.wrapper p {
+    font-weight: bold;
+}
+
+#add-to-metamask {
+    height: 40px;
+    align-self: center;
 }
 </style>
