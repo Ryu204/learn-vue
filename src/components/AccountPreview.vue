@@ -1,31 +1,48 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
+import provider from '../scripts/provider'
+import Button from 'primevue/button'
+import type { MenuItem } from 'primevue/menuitem'
+import Menu from 'primevue/menu'
 
-let isSignedIn = ref(false)
-let _address = ref('0x1234567890000000000000000aadfadf')
-
-let address = computed(() => {
-    return isSignedIn.value ? _address.value.slice(0, 8) + '...' : 'Sign in pliz'
+const address = computed(() => {
+    return provider.isLoggedIn.value 
+        ? provider.address.slice(0, 10) + '...'
+        : 'Log in'
 })
 
-function signIn() {
-    isSignedIn.value = true;
+const menu = ref()
+const _menuItems: MenuItem[] = [
+    {
+        label: 'Log out',
+        command: async () => {
+            await provider.logOut()
+        }
+    }
+]
+const menuItems = ref(_menuItems)
+
+function callback(event: any) {
+    if (provider.isLoggedIn.value) {
+        menu.value.toggle(event)
+    }
+    else
+        provider.logIn()
 }
 </script>
 
 <template>
-    <div @click="signIn()" class="main-preview">
-        <p v-if="isSignedIn">{{ address }}</p>
-        <p v-else>Sign in pliz</p>
-    </div>
+    <Button class="main-preview" :label="address" @click="callback"></Button>
+    <Menu ref="menu" :model="menuItems" :popup="true"></Menu>
 </template>
 
 <style scoped>
 .main-preview {
     border-radius: 100px;
-    border: 1px solid red;
+    border: 3px solid green;
     background-color: black;
     margin: 10px;
-    padding: 10px;
+    padding: 10px 70px;
+    color: white;
 }
 </style>

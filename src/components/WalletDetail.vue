@@ -19,13 +19,13 @@ class WalletInfo {
 }
 
 const info = new WalletInfo(
-    '0xsadfkjhsadfkjsadflkjasdfkljasdf',
+    import.meta.env.VITE_TOKEN_ADDRESS,
     122222,
     100,
     123
 )
 
-const unit = 'LION'
+const unit = import.meta.env.VITE_TOKEN_NAME
 </script>
 
 <template>

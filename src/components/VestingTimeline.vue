@@ -36,6 +36,7 @@
 .card {
     background-color: red;
     padding: 20px;
+    border-radius: 10px;
 }
 
 .timeline-edge {

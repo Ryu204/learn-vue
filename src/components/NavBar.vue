@@ -1,35 +1,63 @@
 <script setup lang="ts">
+import type { MenuItem } from 'primevue/menuitem'
 import Menubar from 'primevue/menubar'
+import { useToast } from 'primevue/usetoast'
 import AccountPreview from './AccountPreview.vue'
 import Cheems from '../assets/cheems.jpg'
+import provider from '../scripts/provider'
+import { ref } from 'vue'
 
-const items = [
+const _model: MenuItem[] = [
     {
-        name: 'Home'
+        label: 'Project',
+        url: 'https://youtube.com'
     },
     {
-        name: 'Support',
-        submenu: true
+        label: 'Support',
+        items: [
+            {
+                label: 'Buy more',
+                url: 'https://github.com'
+            },
+            {
+                label: 'Get involved',
+                url: 'https://facebook.com'
+            }
+        ]
     },
     {
-        name: 'Buy'
+        label: 'Vesting',
+        url: 'https://primevue.org'
     },
     {
-        name: 'Wallet'
+        label: 'My Wallet',
+        command: () => {
+            if (provider.isLoggedIn.value)
+                provider.showAccount()
+            else
+                show(ToastType.logInFirst)
+        }
     }
 ]
+
+enum ToastType {
+    logInFirst
+}
+const toast = useToast()
+function show(type: ToastType) {
+    switch (type) {
+        case ToastType.logInFirst:
+            toast.add({severity: 'info', summary: 'Summary', detail: 'Please log in first', life: 3000})
+            break
+    }
+}
+const model = ref(_model)
 </script>
 
 <template>
-    <Menubar :model="items" class="main">
+    <Menubar :model="model" class="main">
         <template #start>
             <img :src="Cheems" id="logo">
-        </template>
-        <template #item="{ item }">
-            <div class="item">
-                {{ item.name }}
-                <span v-if="item.submenu" class="pi pi-angle-down"></span>
-            </div>
         </template>
         <template #end>
             <AccountPreview></AccountPreview>
@@ -40,7 +68,7 @@ const items = [
 <style scoped>
 .main {
     place-content: end space-between;
-    padding: 0 60px;
+    padding: 0 20px;
     border-radius: 100px;
     margin: 0 auto;
     height: 80px;
@@ -50,10 +78,10 @@ const items = [
     border-radius: 100px;
     display: flex;
     align-items: center;
+    max-height: 45px;
 }
 
 .item {
-    padding: 10px;
+    margin: 10px;
 }
-
 </style>
