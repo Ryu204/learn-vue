@@ -63,28 +63,12 @@ const model = ref(_model)
 </script>
 
 <template>
-    <Menubar :model="model" class="main">
+    <Menubar :model="model" class="nav-bar">
         <template #start>
-            <Avatar :image="Cheems" id="logo" size="large" shape="circle"></Avatar>
+            <Avatar :image="Cheems" id="logo" size="large" shape="circle" class="center"></Avatar>
         </template>
         <template #end>
             <AccountPreview></AccountPreview>
         </template>
     </Menubar>
 </template>
-
-<style scoped>
-.main {
-    padding: 0 20px;
-    border-radius: 100px;
-    margin: 0 auto;
-    height: 80px;
-}
-
-#logo {
-    display: flex;
-    align-items: center;
-    max-height: 45px;
-    margin-right: 30px;
-}
-</style>

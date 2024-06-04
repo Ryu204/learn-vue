@@ -4,7 +4,6 @@ import provider from '../scripts/provider'
 import Button from 'primevue/button'
 import type { MenuItem } from 'primevue/menuitem'
 import Menu from 'primevue/menu'
-import appearance from '../scripts/appearance'
 
 const address = computed(() => {
     return provider.isLoggedIn.value 
@@ -36,13 +35,3 @@ function callback(event: any) {
     <Button class="main-preview" :label="address" @click="callback" rounded></Button>
     <Menu ref="menu" :model="menuItems" :popup="true"></Menu>
 </template>
-
-<style scoped>
-.main-preview {
-    border: 2px solid v-bind("appearance.primaryForegroundColor");
-    background-color: v-bind("appearance.primaryBackgroundColor");
-    margin: 10px;
-    padding: 10px 70px;
-    color: white;
-}
-</style>

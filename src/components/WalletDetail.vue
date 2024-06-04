@@ -27,7 +27,7 @@ async function copyTokenAddress() {
     <Card>
         <template #title>Wallet information</template>
         <template #content>
-            <div class="flex-row">
+            <div class="wallet-info flex-row align-space-between center">
                 <div>
                     <p>
                         Token address: {{ info.tokenAddress }}
@@ -37,10 +37,9 @@ async function copyTokenAddress() {
                     <p>Token vesting: {{ info.tokenVesting }} {{ unit }}</p>
                     <p>Claimed: {{ info.claimed }} {{ unit }}</p>
                 </div>
-                <div class="flex-column">
-                    <ConnectWalletButton :logo="metamaskIcon" name="MetaMask" class="inline"></ConnectWalletButton>
-                    <ConnectWalletButton :logo="trustwalletIcon" name="Trust Wallet" class="inline">
-                    </ConnectWalletButton>
+                <div class="flex-column center">
+                    <ConnectWalletButton :logo="metamaskIcon" name="MetaMask"></ConnectWalletButton>
+                    <ConnectWalletButton :logo="trustwalletIcon" name="Trust Wallet"></ConnectWalletButton>
                 </div>
             </div>
         </template>
@@ -48,25 +47,6 @@ async function copyTokenAddress() {
 </template>
 
 <style scoped>
-.flex-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0 auto;
-}
-
-.flex-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.inline {
-    display: inline-block;
-    align-self: center;
-    align-items: center;
-}
-
 .copy {
     padding: 0;
     margin-left: 5px;
@@ -74,16 +54,5 @@ async function copyTokenAddress() {
     color: white;
     max-width: 20px;
     border: none;
-}
-
-@media screen and (max-width: 800px) {
-    .flex-row {
-        flex-direction: column;
-        align-items: start;
-    }
-
-    .flex-column {
-        flex-direction: row;
-    }
 }
 </style>

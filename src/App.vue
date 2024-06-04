@@ -15,10 +15,11 @@ import provider from './scripts/provider'
     <NavBar></NavBar>
   </header>
   <main>
-    <WalletDetail v-if="provider.isLoggedIn.value"></WalletDetail>
+    <WalletDetail v-if="provider.isLoggedIn.value" class="margin-bottom-large"></WalletDetail>
     <VestingTimeline></VestingTimeline>
   </main>
 </template>
 
 <style scoped>
+@import './assets/main.css';
 </style>
