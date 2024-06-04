@@ -4,13 +4,14 @@ import {
     createWeb3Modal,
 } from '@web3modal/ethers5'
 import type { Web3Modal } from '@web3modal/ethers5'
+import WalletInfo from './walletInfo'
 
 export class Provider {
     isLoggedIn = ref(false)
 
     private _modal: Web3Modal
     private _address: string | undefined
-
+    private _walletInfo: WalletInfo | undefined
     constructor() {
         try {
             this._modal = createModal()
@@ -46,6 +47,10 @@ export class Provider {
         return this._address!
     }
 
+    get walletInfo() {
+        return this._walletInfo!
+    }
+
     private _addCallbacks() {
         this._modal.subscribeEvents((ev) => {
             console.log(ev.data.event)
@@ -60,7 +65,13 @@ export class Provider {
     }
 
     private async _updateLogInAndFetchData() {
-        this._address = '0x2135534645674564536345'
+        this._address = this._modal.getAddress()!
+        this._walletInfo = new WalletInfo(
+            import.meta.env.VITE_TOKEN_ADDRESS,
+            123213214324,
+            2423423424,
+            12312313
+        )
         this.isLoggedIn.value = true;
     }
 }

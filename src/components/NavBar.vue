@@ -2,9 +2,12 @@
 import type { MenuItem } from 'primevue/menuitem'
 import Menubar from 'primevue/menubar'
 import { useToast } from 'primevue/usetoast'
+import Avatar from 'primevue/avatar'
+
 import AccountPreview from './AccountPreview.vue'
 import Cheems from '../assets/cheems.jpg'
 import provider from '../scripts/provider'
+
 import { ref } from 'vue'
 
 const _model: MenuItem[] = [
@@ -47,7 +50,12 @@ const toast = useToast()
 function show(type: ToastType) {
     switch (type) {
         case ToastType.logInFirst:
-            toast.add({severity: 'info', summary: 'Summary', detail: 'Please log in first', life: 3000})
+            toast.add({
+                severity: 'info',
+                summary: 'Info',
+                detail: 'Please log in first', 
+                life: 3000
+            })
             break
     }
 }
@@ -57,7 +65,7 @@ const model = ref(_model)
 <template>
     <Menubar :model="model" class="main">
         <template #start>
-            <img :src="Cheems" id="logo">
+            <Avatar :image="Cheems" id="logo" size="large" shape="circle"></Avatar>
         </template>
         <template #end>
             <AccountPreview></AccountPreview>
@@ -67,7 +75,6 @@ const model = ref(_model)
 
 <style scoped>
 .main {
-    place-content: end space-between;
     padding: 0 20px;
     border-radius: 100px;
     margin: 0 auto;
@@ -75,13 +82,9 @@ const model = ref(_model)
 }
 
 #logo {
-    border-radius: 100px;
     display: flex;
     align-items: center;
     max-height: 45px;
-}
-
-.item {
-    margin: 10px;
+    margin-right: 30px;
 }
 </style>
