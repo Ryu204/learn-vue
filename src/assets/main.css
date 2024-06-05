@@ -7,12 +7,13 @@
     --secondary-foreground-color: green;
     --primary-background-color: black;
     --primary-foreground-color: cyan;
+    --disabled-background-color: gray;
 }
 
 #app {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 10px;
 }
 
 /* Commonly used classes */
@@ -65,6 +66,10 @@
 #logo {
     max-height: 45px;
     margin-right: 30px;
+}
+
+.wallet-info p {
+    word-wrap: break-word;
 }
 
 #timeline {
@@ -157,6 +162,21 @@
     border-color: transparent var(--translucent-color) transparent transparent;
 }
 
+.footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   
+    padding-top: 20px;
+    border-top: solid 1px var(--disabled-background-color);
+    margin-top: 30px;
+}
+
+.footer p {
+    font-size: 12px;
+    margin: 0px;
+    color: var(--disabled-background-color);
+}
+
 /* Responsive rules */
 @media screen and (max-width: 768px) {
 
@@ -211,6 +231,14 @@
 }
 
 @media screen and (max-width: 576px) {
+
+    .p-toast {
+        max-width: 300px;
+    }
+
+    .wallet-info {
+        display: block;
+    }
 
     /* Component specific */
     .wallet-info .flex-column {
