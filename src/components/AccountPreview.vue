@@ -16,7 +16,7 @@ const _menuItems: MenuItem[] = [
     {
         label: 'Log out',
         command: async () => {
-            await provider.logOut()
+            await provider.tryLogOut()
         }
     }
 ]
@@ -27,7 +27,7 @@ function callback(event: any) {
         menu.value.toggle(event)
     }
     else
-        provider.logIn()
+        provider.tryLogIn()
 }
 </script>
 

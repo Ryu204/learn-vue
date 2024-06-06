@@ -9,14 +9,15 @@ import ConnectWalletButton from './ConnectWalletButton.vue'
 
 const info = provider.walletInfo
 const unit = import.meta.env.VITE_TOKEN_NAME
+const tokenAddress = import.meta.env.VITE_TOKEN_ADDRESS
 const toast = useToast()
 
 async function copyTokenAddress() {
-    await navigator.clipboard.writeText(info.tokenAddress)
+    await navigator.clipboard.writeText(tokenAddress)
     toast.add({
         severity: 'success',
         summary: 'Copied',
-        detail: `"${info.tokenAddress.slice(0, 10) + '...'}" has been copied to clipboard.`,
+        detail: `"${tokenAddress.slice(0, 10) + '...'}" has been copied to clipboard.`,
         life: 3000
     })
 }
@@ -30,10 +31,10 @@ async function copyTokenAddress() {
             <div class="wallet-info flex-row align-space-between center">
                 <div>
                     <p>
-                        Token address: {{ info.tokenAddress }}
+                        Token address: {{ tokenAddress }}
                         <Button icon="pi pi-clone" @click="copyTokenAddress" class="copy"></Button>
                     </p>
-                    <p>Balance: {{ info.balance }} {{ unit }}</p>
+                    <p>Your balance: {{ info.balance }} {{ unit }}</p>
                     <p>Token vesting: {{ info.tokenVesting }} {{ unit }}</p>
                     <p>Claimed: {{ info.claimed }} {{ unit }}</p>
                 </div>
