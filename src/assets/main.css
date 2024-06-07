@@ -177,6 +177,10 @@
     color: var(--disabled-background-color);
 }
 
+.p-tooltip-text {
+    font-size: 14px;
+}
+
 /* Responsive rules */
 @media screen and (max-width: 768px) {
 
@@ -233,7 +237,7 @@
 @media screen and (max-width: 576px) {
 
     .p-toast {
-        max-width: 300px;
+        max-width: 250px;
     }
 
     .wallet-info {

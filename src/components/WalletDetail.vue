@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import Card from 'primevue/card'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
@@ -7,7 +8,7 @@ import metamaskIcon from '../assets/metamask.svg'
 import trustwalletIcon from '../assets/trustwallet.svg'
 import ConnectWalletButton from './ConnectWalletButton.vue'
 
-const info = provider.walletInfo
+const info = computed(() => provider.walletInfo)
 const unit = import.meta.env.VITE_TOKEN_NAME
 const tokenAddress = import.meta.env.VITE_TOKEN_ADDRESS
 const toast = useToast()

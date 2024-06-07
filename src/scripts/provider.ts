@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import {
     defaultConfig,
     createWeb3Modal,
@@ -15,7 +16,7 @@ export class Provider {
 
     private _modal: Web3Modal
     private _address: string | undefined
-    private _walletInfo: WalletInfo | undefined
+    private _walletInfo: Ref<WalletInfo> | undefined
     private _tokenContract: Contract | undefined
     private _vestingContract: Contract
 
@@ -43,6 +44,15 @@ export class Provider {
         // await this._modal.disconnect()
     }
 
+    async claim() {
+        try {
+            await this._vestingContract.claim()
+            await this._fetchTokenStatus()
+        } catch (e) {
+            return `An error occured: ${e}`
+        }
+    }
+
     private async _logOutCleanup() {
         this.isLoggedIn.value = false
         console.log('logged out')
@@ -59,7 +69,7 @@ export class Provider {
     }
 
     get walletInfo() {
-        return this._walletInfo!
+        return this._walletInfo!.value
     }
 
     private _addCallbacks() {
@@ -82,19 +92,39 @@ export class Provider {
         }
         const tokenContract = await createTokenContract(this._modal)
         this._tokenContract = tokenContract.contract
-        const balance = await this._tokenContract.balanceOf(this._address!) as number
-        const claimStatus = await (this._vestingContract.connect(tokenContract.signer) as any).getClaimStatus(
+        this._vestingContract = this._vestingContract.connect(tokenContract.signer) as Contract
+        this._vestingContract.on('Claimed', async (user) => {
+            if (this._address != undefined && user == this._address) {
+                alert(`${user}`)
+                await this._fetchTokenStatus()
+                console.log(this._walletInfo!.value)
+            }
+        })
+        await this._fetchTokenStatus()
+        this.isLoggedIn.value = true;
+    }
+
+    private async _fetchTokenStatus() {
+        const balance = await this._tokenContract!.balanceOf(this._address!) as number
+        const claimStatus = await this._vestingContract.getClaimStatus(
             this._address
         )
         const tokenVesting = claimStatus.vested
         const claimed = claimStatus.firstPeriod + claimStatus.secondPeriod
         
-        this._walletInfo = {
+        const info = {
             balance,
             tokenVesting,
             claimed,
+            isPeriodClaimed: {
+                first: claimStatus.firstPeriod > 0,
+                second: claimStatus.secondPeriod > 0
+            }
         }
-        this.isLoggedIn.value = true;
+        if (this._walletInfo == undefined)
+            this._walletInfo = ref(info)
+        else
+            this._walletInfo!.value = info
     }
 }
 

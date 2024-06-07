@@ -6,6 +6,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
 import ToastService from 'primevue/toastservice'
+import Tooltip from 'primevue/tooltip'
 
 const app = createApp(App)
 app
@@ -13,4 +14,5 @@ app
         ripple: true
     })
     .use(ToastService)
+    .directive('tooltip', Tooltip)
     .mount('#app')
