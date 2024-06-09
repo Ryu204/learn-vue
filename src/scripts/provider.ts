@@ -55,7 +55,6 @@ export class Provider {
 
     private async _logOutCleanup() {
         this.isLoggedIn.value = false
-        console.log('logged out')
     }
 
     async showAccount() {
@@ -88,19 +87,21 @@ export class Provider {
     private async _updateLogInAndFetchData() {
         // We should not do this check. However currently getAddress() returns undefined after reconnect
         if (this._modal.getAddress() != undefined) {
+            console.log('warning: no address found on web3modal')
             this._address = this._modal.getAddress()
         }
         const tokenContract = await createTokenContract(this._modal)
-        this._tokenContract = tokenContract.contract
-        this._vestingContract = this._vestingContract.connect(tokenContract.signer) as Contract
-        this._vestingContract.on('Claimed', async (user) => {
-            if (this._address != undefined && user == this._address) {
-                alert(`${user}`)
-                await this._fetchTokenStatus()
-                console.log(this._walletInfo!.value)
-            }
-        })
-        await this._fetchTokenStatus()
+        if (tokenContract != undefined) {
+            console.log('warning: no wallet provider found on web3modal')
+            this._tokenContract = tokenContract.contract
+            this._vestingContract = this._vestingContract.connect(tokenContract.signer) as Contract
+            this._vestingContract.on('Claimed', async (user) => {
+                if (this._address != undefined && user == this._address) {
+                    await this._fetchTokenStatus()
+                }
+            })
+            await this._fetchTokenStatus()
+        }
         this.isLoggedIn.value = true;
     }
 
@@ -133,7 +134,7 @@ export default provider
 
 function createModal() {
     // 1. Get projectId at https://cloud.walletconnect.com
-    const projectId: string = import.meta.env.VITE_WC_PROJECT_ID
+    const projectId = import.meta.env.VITE_WC_PROJECT_ID
 
     // 2. Set chains
     const sepolia = {
@@ -146,15 +147,21 @@ function createModal() {
 
     // 3. Create your application's metadata object
     const metadata = {
-        name: 'My Website',
-        description: 'My Website description',
-        url: 'https://youtube.com', // url must match your domain & subdomain
+        name: `${import.meta.env.VITE_TOKEN_NAME} Vesting`,
+        description: `Vesting page for ${import.meta.env.VITE_TOKEN_NAME} buyers`,
+        url: 'http://localhost:5173', // url must match your domain & subdomain
         icons: ['']
     }
 
     // 4. Create Ethers config
     const ethersConfig = defaultConfig({
         metadata,
+
+        enableEIP6963: true, // true by default
+        enableInjected: true, // true by default
+        enableCoinbase: true, // true by default
+        rpcUrl: '...', // used for the Coinbase SDK
+        defaultChainId: 1, // used for the Coinbase SDK
     })
 
     // 5. Create a Web3Modal instance
@@ -166,7 +173,10 @@ function createModal() {
 }
 
 async function createTokenContract(modal: Web3Modal) {
-    const walletProvider = modal.getWalletProvider()!
+    const walletProvider = modal.getWalletProvider()
+    if (walletProvider == undefined)
+        return undefined
+    console.log(walletProvider)
     const ethersProvider = new BrowserProvider(walletProvider)
     const signer = await ethersProvider.getSigner()
 
