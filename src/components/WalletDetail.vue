@@ -23,6 +23,36 @@ async function copyTokenAddress() {
     })
 }
 
+async function addToMetamask() {
+    const res = await provider.addToMetamask()
+    if (typeof res !== 'boolean') {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail:
+                'Could not add token to wallet: ' +
+                typeof res === 'string'
+                    ? res
+                    : res.message == undefined
+                        ? JSON.stringify(res)
+                        : res.message as string
+        })
+    } else if (res == true) {
+        toast.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `${import.meta.env.VITE_TOKEN_NAME} was added to MetaMask`,
+            life: 3000
+        })
+    } else if (res == false) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Could not add ${import.meta.env.VITE_TOKEN_NAME} to MetaMask`
+        })
+    }
+}
+
 </script>
 
 <template>
@@ -40,8 +70,12 @@ async function copyTokenAddress() {
                     <p>Claimed: {{ info.claimed }} {{ unit }}</p>
                 </div>
                 <div class="flex-column center">
-                    <ConnectWalletButton :logo="metamaskIcon" name="MetaMask"></ConnectWalletButton>
-                    <ConnectWalletButton :logo="trustwalletIcon" name="Trust Wallet"></ConnectWalletButton>
+                    <ConnectWalletButton :logo="metamaskIcon" name="MetaMask" @click="addToMetamask">
+                    </ConnectWalletButton>
+                    <div v-tooltip="'Will be supported soon'">
+                        <ConnectWalletButton :logo="trustwalletIcon" name="Trust Wallet" disabled="true">
+                        </ConnectWalletButton>
+                    </div>
                 </div>
             </div>
         </template>

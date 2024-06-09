@@ -53,7 +53,41 @@ export class Provider {
         }
     }
 
-    private async _logOutCleanup() {
+    async addToMetamask() {
+        try {
+            // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+            const prom = this._modal.getWalletProvider()!.request({
+                method: 'wallet_watchAsset',
+                params: {
+                    type: 'ERC20', // Initially only supports ERC20, but eventually more!
+                    options: {
+                        address: import.meta.env.VITE_TOKEN_ADDRESS, // The address that the token is at.
+                        symbol: import.meta.env.VITE_TOKEN_NAME, // A ticker symbol or shorthand, up to 5 chars.
+                        decimals: 18, // The number of decimals in the token
+                        // image: , // A string url of the token logo
+                    },
+                }
+            });
+            async function returnWait<T>(timeToDelay: number, returnValue: T): Promise<T> {
+                return new Promise((resolve) => setTimeout(() => resolve(returnValue), timeToDelay));
+            }
+
+            const wasAdded = await Promise.race([
+                returnWait(15000, 'Timeout. Did you log in with MetaMask?'),
+                prom
+            ])
+            
+            if (wasAdded === true) {
+                return true
+            } else {
+                return wasAdded
+            }
+        } catch (error) {
+            return error as string
+        }
+    }
+
+    private _logOutCleanup() {
         this.isLoggedIn.value = false
     }
 
@@ -73,13 +107,21 @@ export class Provider {
 
     private _addCallbacks() {
         this._modal.subscribeEvents((ev) => {
-            console.log(ev.data.event)
             if (ev.data.event == 'CONNECT_SUCCESS') {
-                this._updateLogInAndFetchData()
+                // It turns out, this event is fired before modal's internal data is updated, so we do a stupid patch
+                // this._updateLogInAndFetchData()
+                setTimeout(() => this._updateLogInAndFetchData(), 500)
             } else if (ev.data.event == 'MODAL_CLOSE') {
                 if (this.isLoggedIn.value && !this._modal.getIsConnected()) {
                     this._logOutCleanup()
                 }
+            }
+        })
+        this._modal.subscribeProvider(async (pr) => {
+            if (pr.address != undefined && this._address != undefined && pr.address != this._address) {
+                // Account changed
+                this._logOutCleanup()
+                await this._updateLogInAndFetchData()
             }
         })
     }
@@ -87,12 +129,13 @@ export class Provider {
     private async _updateLogInAndFetchData() {
         // We should not do this check. However currently getAddress() returns undefined after reconnect
         if (this._modal.getAddress() != undefined) {
-            console.log('warning: no address found on web3modal')
             this._address = this._modal.getAddress()
+        } else {
+            console.log('warning: no address found on web3modal')
         }
         const tokenContract = await createTokenContract(this._modal)
+        // We also should not do this check. However, getWalletProvider() behaves very upexpectedly...
         if (tokenContract != undefined) {
-            console.log('warning: no wallet provider found on web3modal')
             this._tokenContract = tokenContract.contract
             this._vestingContract = this._vestingContract.connect(tokenContract.signer) as Contract
             this._vestingContract.on('Claimed', async (user) => {
@@ -101,6 +144,8 @@ export class Provider {
                 }
             })
             await this._fetchTokenStatus()
+        } else {
+            console.log('warning: no wallet provider found on web3modal')
         }
         this.isLoggedIn.value = true;
     }
@@ -112,7 +157,7 @@ export class Provider {
         )
         const tokenVesting = claimStatus.vested
         const claimed = claimStatus.firstPeriod + claimStatus.secondPeriod
-        
+
         const info = {
             balance,
             tokenVesting,
@@ -169,6 +214,9 @@ function createModal() {
         ethersConfig,
         chains: [sepolia],
         projectId,
+        tokens: {
+            [import.meta.env.VITE_TOKEN_NAME]: import.meta.env.VITE_TOKEN_ADDRESS
+        }
     })
 }
 
@@ -176,7 +224,6 @@ async function createTokenContract(modal: Web3Modal) {
     const walletProvider = modal.getWalletProvider()
     if (walletProvider == undefined)
         return undefined
-    console.log(walletProvider)
     const ethersProvider = new BrowserProvider(walletProvider)
     const signer = await ethersProvider.getSigner()
 
