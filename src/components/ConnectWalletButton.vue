@@ -26,6 +26,7 @@ const props = defineProps({
     padding: 3px;
     display: flex !important;
     min-width: 200px;
+    height: 40px;
     font-size: 12px;
     margin: 5px;
 }

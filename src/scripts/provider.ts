@@ -13,6 +13,9 @@ const jsonRpcUrl = `https://eth-sepolia.g.alchemy.com/v2/${import.meta.env.VITE_
 
 export class Provider {
     isLoggedIn = ref(false)
+    isClaiming = ref(false)
+    isLoggingIn = ref(false)
+    isAddingToken = ref(false)
 
     private _modal: Web3Modal
     private _address: string | undefined
@@ -31,6 +34,7 @@ export class Provider {
     }
 
     async tryLogIn() {
+        this.isLoggingIn.value = true
         await this._modal.open({
             view: 'Connect'
         })
@@ -46,14 +50,22 @@ export class Provider {
 
     async claim() {
         try {
+            this.isClaiming.value = true
             await this._vestingContract.claim()
             await this._fetchTokenStatus()
         } catch (e) {
+            this.isClaiming.value = false
             return `An error occured: ${e}`
         }
     }
-
+    
     async addToMetamask() {
+        this.isAddingToken.value = true
+        const res = await this._addToMetamask()
+        this.isAddingToken.value = false
+        return res
+    }
+    async _addToMetamask() {
         try {
             // wasAdded is a boolean. Like any RPC method, an error may be thrown.
             const prom = this._modal.getWalletProvider()!.request({
@@ -110,8 +122,12 @@ export class Provider {
             if (ev.data.event == 'CONNECT_SUCCESS') {
                 // It turns out, this event is fired before modal's internal data is updated, so we do a stupid patch
                 // this._updateLogInAndFetchData()
-                setTimeout(() => this._updateLogInAndFetchData(), 500)
-            } else if (ev.data.event == 'MODAL_CLOSE') {
+                setTimeout(async () => {
+                    await this._updateLogInAndFetchData()
+                    this.isLoggingIn.value = false
+                }, 500)
+            } else if(ev.data.event == 'MODAL_CLOSE') {
+                this.isLoggingIn.value = false
                 if (this.isLoggedIn.value && !this._modal.getIsConnected()) {
                     this._logOutCleanup()
                 }
@@ -120,8 +136,10 @@ export class Provider {
         this._modal.subscribeProvider(async (pr) => {
             if (pr.address != undefined && this._address != undefined && pr.address != this._address) {
                 // Account changed
+                this.isLoggingIn.value = true
                 this._logOutCleanup()
                 await this._updateLogInAndFetchData()
+                this.isLoggingIn.value = false
             }
         })
     }
@@ -142,6 +160,7 @@ export class Provider {
                 if (this._address != undefined && user == this._address) {
                     await this._fetchTokenStatus()
                 }
+                this.isClaiming.value = false
             })
             await this._fetchTokenStatus()
         } else {

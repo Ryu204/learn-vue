@@ -32,6 +32,6 @@ function callback(event: any) {
 </script>
 
 <template>
-    <Button class="main-preview" :label="address" @click="callback" rounded></Button>
+    <Button class="main-preview" :label="address" @click="callback" :loading="provider.isLoggingIn.value" rounded></Button>
     <Menu ref="menu" :model="menuItems" :popup="true"></Menu>
 </template>

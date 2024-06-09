@@ -30,12 +30,13 @@ async function addToMetamask() {
             severity: 'error',
             summary: 'Error',
             detail:
-                'Could not add token to wallet: ' +
-                typeof res === 'string'
-                    ? res
-                    : res.message == undefined
-                        ? JSON.stringify(res)
-                        : res.message as string
+                'Could not add token to wallet: ' + (
+                    typeof res === 'string'
+                        ? res
+                        : res.message == undefined
+                            ? JSON.stringify(res)
+                            : res.message as string
+                )
         })
     } else if (res == true) {
         toast.add({
@@ -44,7 +45,7 @@ async function addToMetamask() {
             detail: `${import.meta.env.VITE_TOKEN_NAME} was added to MetaMask`,
             life: 3000
         })
-    } else if (res == false) {
+    } else {
         toast.add({
             severity: 'error',
             summary: 'Error',
@@ -70,7 +71,7 @@ async function addToMetamask() {
                     <p>Claimed: {{ info.claimed }} {{ unit }}</p>
                 </div>
                 <div class="flex-column center">
-                    <ConnectWalletButton :logo="metamaskIcon" name="MetaMask" @click="addToMetamask">
+                    <ConnectWalletButton :logo="metamaskIcon" name="MetaMask" @click="addToMetamask" :loading="provider.isAddingToken.value">
                     </ConnectWalletButton>
                     <div v-tooltip="'Will be supported soon'">
                         <ConnectWalletButton :logo="trustwalletIcon" name="Trust Wallet" disabled="true">

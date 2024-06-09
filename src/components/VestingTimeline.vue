@@ -51,7 +51,7 @@ async function claim() {
                     <div v-if="notLoggedIn" v-tooltip="tooltip" class="no-flex">
                         <Button label="Claim" disabled="true"></Button>
                     </div>
-                    <Button v-else-if="claimStatus('FIRST') == 'OK'" label="Claim" @click="claim"></Button>
+                    <Button v-else-if="claimStatus('FIRST') == 'OK'" label="Claim" @click="claim" :loading="provider.isClaiming.value"></Button>
                     <Button v-else-if="claimStatus('FIRST') == 'DISABLED'" label="Claim" disabled="true"></Button>
                     <Button v-else label="Claimed" disabled="true"></Button>
                 </div>
@@ -62,7 +62,7 @@ async function claim() {
                     <div v-if="notLoggedIn" v-tooltip="tooltip" class="no-flex">
                         <Button label="Claim" disabled="true"></Button>
                     </div>
-                    <Button v-else-if="claimStatus('SECOND') == 'OK'" label="Claim" @click="claim"></Button>
+                    <Button v-else-if="claimStatus('SECOND') == 'OK'" label="Claim" @click="claim" :loading="provider.isClaiming.value"></Button>
                     <Button v-else-if="claimStatus('SECOND') == 'CLAIMED'" label="Claimed" disabled="true"></Button>
                     <Button v-else label="Claim" disabled="true"></Button>
                 </div>
