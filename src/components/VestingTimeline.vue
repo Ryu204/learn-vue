@@ -39,6 +39,14 @@ async function claim() {
     }
 }
 
+provider.claimCallback = (claimed: number) => {
+    toast.add({
+        severity: 'success',
+        summary: 'Success',
+        detail: `Claimed ${claimed} ${import.meta.env.VITE_TOKEN_NAME} successfully`,
+    })
+}
+
 </script>
 
 <template>

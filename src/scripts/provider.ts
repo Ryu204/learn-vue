@@ -23,6 +23,9 @@ export class Provider {
     private _tokenContract: Contract | undefined
     private _vestingContract: Contract
 
+    private _claimedCallback: ((claimed: number) => void) | undefined
+    private _logInFailedCallback: ((msg: string) => void) | undefined
+
     constructor() {
         try {
             this._modal = createModal()
@@ -48,6 +51,14 @@ export class Provider {
         // await this._modal.disconnect()
     }
 
+    set logInFailedCallback(cb: (msg: string) => void) {
+        this._logInFailedCallback = cb
+    }
+
+    set claimCallback(cb: (claim: number) => void) {
+        this._claimedCallback = cb
+    }
+
     async claim() {
         try {
             this.isClaiming.value = true
@@ -55,10 +66,12 @@ export class Provider {
             await this._fetchTokenStatus()
         } catch (e) {
             this.isClaiming.value = false
-            return `An error occured: ${e}`
+            if (JSON.stringify(e).includes('ACTION_REJECTED'))
+                return 'User rejected transaction'
+            else return `${e}`
         }
     }
-    
+
     async addToMetamask() {
         this.isAddingToken.value = true
         const res = await this._addToMetamask()
@@ -88,7 +101,7 @@ export class Provider {
                 returnWait(15000, 'Timeout. Did you log in with MetaMask?'),
                 prom
             ])
-            
+
             if (wasAdded === true) {
                 return true
             } else {
@@ -123,10 +136,18 @@ export class Provider {
                 // It turns out, this event is fired before modal's internal data is updated, so we do a stupid patch
                 // this._updateLogInAndFetchData()
                 setTimeout(async () => {
+                    const chainId = 11155111
+                    if (this._modal.getChainId() != chainId) {
+                        if (this._logInFailedCallback)
+                            this._logInFailedCallback('Unsupported chain')
+                        this._modal.open({view: 'Networks'})
+                        this.isLoggingIn.value = false
+                        return
+                    }
                     await this._updateLogInAndFetchData()
                     this.isLoggingIn.value = false
                 }, 500)
-            } else if(ev.data.event == 'MODAL_CLOSE') {
+            } else if (ev.data.event == 'MODAL_CLOSE') {
                 this.isLoggingIn.value = false
                 if (this.isLoggedIn.value && !this._modal.getIsConnected()) {
                     this._logOutCleanup()
@@ -156,11 +177,13 @@ export class Provider {
         if (tokenContract != undefined) {
             this._tokenContract = tokenContract.contract
             this._vestingContract = this._vestingContract.connect(tokenContract.signer) as Contract
-            this._vestingContract.on('Claimed', async (user) => {
+            this._vestingContract.on('Claimed', async (user, amount) => {
                 if (this._address != undefined && user == this._address) {
                     await this._fetchTokenStatus()
+                    if (this._claimedCallback)
+                        this._claimedCallback(amount)
+                    this.isClaiming.value = false
                 }
-                this.isClaiming.value = false
             })
             await this._fetchTokenStatus()
         } else {
@@ -231,6 +254,7 @@ function createModal() {
     // 5. Create a Web3Modal instance
     return createWeb3Modal({
         ethersConfig,
+        allowUnsupportedChain: false,
         chains: [sepolia],
         projectId,
         tokens: {
