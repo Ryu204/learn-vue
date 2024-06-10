@@ -23,6 +23,8 @@ export class Provider {
     private _tokenContract: Contract | undefined
     private _vestingContract: Contract
 
+    private _claimedCallback: ((claimed: number) => void) | undefined
+
     constructor() {
         try {
             this._modal = createModal()
@@ -46,6 +48,10 @@ export class Provider {
         })
         // I would have used this thing if it actually emits DISCONNECT events :V
         // await this._modal.disconnect()
+    }
+
+    set claimCallback(cb: (claim: number) => void) {
+        this._claimedCallback = cb
     }
 
     async claim() {
@@ -156,11 +162,12 @@ export class Provider {
         if (tokenContract != undefined) {
             this._tokenContract = tokenContract.contract
             this._vestingContract = this._vestingContract.connect(tokenContract.signer) as Contract
-            this._vestingContract.on('Claimed', async (user) => {
+            this._vestingContract.on('Claimed', async (user, amount) => {
                 if (this._address != undefined && user == this._address) {
                     await this._fetchTokenStatus()
+                    this._claimedCallback??(amount)
+                    this.isClaiming.value = false
                 }
-                this.isClaiming.value = false
             })
             await this._fetchTokenStatus()
         } else {
