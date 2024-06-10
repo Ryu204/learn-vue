@@ -44,7 +44,6 @@ provider.claimCallback = (claimed: number) => {
         severity: 'success',
         summary: 'Success',
         detail: `Claimed ${claimed} ${import.meta.env.VITE_TOKEN_NAME} successfully`,
-        life: 3000
     })
 }
 
